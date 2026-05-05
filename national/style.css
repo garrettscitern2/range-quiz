@@ -1,0 +1,528 @@
+/* ============================================================
+   BASE
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --green-dark:      #2d5a3d;
+  --green-mid:       #4a8c5c;
+  --green-light:     #e6f0e9;
+  --blue:            #2563a8;
+  --blue-light:      #dbeafe;
+  --correct:         #1e7e44;
+  --correct-light:   #d1f0dc;
+  --incorrect:       #b91c1c;
+  --incorrect-light: #fee2e2;
+  --bg:              #f4f0e8;
+  --card:            #ffffff;
+  --text:            #111827;
+  --muted:           #6b7280;
+  --border:          #d1d5db;
+  --radius:          10px;
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+               'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+  height: 100dvh; /* dynamic viewport height — handles mobile browser chrome */
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================
+   QUIZ SCREEN
+   ============================================================ */
+
+.quiz-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+
+.quiz-header {
+  background: var(--green-dark);
+  color: #fff;
+  padding: 12px 16px 10px;
+  flex-shrink: 0;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.quiz-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.progress-count {
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
+.progress-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 7px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #86efac;
+  border-radius: 3px;
+  transition: width 0.35s ease;
+}
+
+.score-line {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* ── Card ───────────────────────────────────────────────── */
+
+.card {
+  flex: 1;
+  background: var(--card);
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Type badge */
+.type-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 20px;
+  margin-bottom: 7px;
+  align-self: flex-start;
+}
+
+.type-badge.grass  { background: #d1fae5; color: #065f46; }
+.type-badge.legume { background: #fef3c7; color: #92400e; }
+.type-badge.forb   { background: #fce7f3; color: #9d174d; }
+.type-badge.woody  { background: #ede9e0; color: #5c3d1e; }
+
+/* Plant name */
+.plant-name {
+  font-size: 23px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.plant-scientific {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+/* ── Characteristics ────────────────────────────────────── */
+
+.characteristics {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.char-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+}
+
+.char-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  min-width: 88px;
+  flex-shrink: 0;
+}
+
+.btn-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Choice buttons */
+.choice-btn {
+  padding: 7px 13px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 38px;
+  white-space: nowrap;
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.choice-btn:hover:not(:disabled) {
+  border-color: var(--blue);
+  background: var(--blue-light);
+}
+
+.choice-btn.selected {
+  background: var(--blue-light);
+  border-color: var(--blue);
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.choice-btn.correct {
+  background: var(--correct-light);
+  border-color: var(--correct);
+  color: var(--correct);
+  font-weight: 700;
+  cursor: default;
+}
+
+.choice-btn.incorrect {
+  background: var(--incorrect-light);
+  border-color: var(--incorrect);
+  color: var(--incorrect);
+  font-weight: 700;
+  cursor: default;
+}
+
+.choice-btn:disabled:not(.correct):not(.incorrect) {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── Action area ────────────────────────────────────────── */
+
+.action-area {
+  margin-top: auto;
+  padding-top: 14px;
+}
+
+.action-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--green-mid);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.action-btn:not(:disabled):hover {
+  background: #3d7a4e;
+}
+
+.action-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.action-btn.correct-btn {
+  background: var(--correct);
+}
+
+.action-btn.correct-btn:hover {
+  background: #166535;
+}
+
+/* ============================================================
+   RESULTS SCREEN
+   ============================================================ */
+
+.results-screen {
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+  background: var(--bg);
+}
+
+.results-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 32px 24px 28px;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+}
+
+.results-grade {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+.grade-a { background: #d1fae5; color: #065f46; }
+.grade-b { background: #dbeafe; color: #1e40af; }
+.grade-c { background: #fef3c7; color: #92400e; }
+.grade-d { background: #fee2e2; color: #991b1b; }
+
+.results-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+.score-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.score-item {
+  background: var(--green-light);
+  border-radius: var(--radius);
+  padding: 14px 8px;
+}
+
+.score-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--green-dark);
+}
+
+.score-label {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 3px;
+  line-height: 1.3;
+}
+
+.score-pct {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.score-pct.grade-a { color: var(--correct); }
+.score-pct.grade-b { color: var(--blue); }
+.score-pct.grade-c { color: #b45309; }
+.score-pct.grade-d { color: var(--incorrect); }
+
+.score-pct-label {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 28px;
+}
+
+.results-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 260px;
+  margin: 0 auto;
+}
+
+.secondary-btn {
+  background: transparent;
+  color: var(--green-dark);
+  border: 2px solid var(--green-dark);
+}
+
+.secondary-btn:hover {
+  background: var(--green-light);
+}
+
+/* ============================================================
+   START / SETTINGS SCREEN
+   ============================================================ */
+
+.start-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.start-header {
+  background: var(--green-dark);
+  color: #fff;
+  padding: 32px 20px 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.start-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
+}
+
+.start-subtitle {
+  font-size: 13px;
+  opacity: 0.75;
+  letter-spacing: 0.3px;
+}
+
+.settings-card {
+  flex: 1;
+  background: var(--card);
+  padding: 24px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  gap: 24px;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+.settings-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.setting-btn {
+  padding: 8px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.setting-btn:hover {
+  border-color: var(--blue);
+  background: var(--blue-light);
+}
+
+.setting-btn.selected {
+  background: var(--blue-light);
+  border-color: var(--blue);
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.available-count {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ============================================================
+   DESKTOP: center the card visually
+   ============================================================ */
+
+@media (min-width: 521px) {
+  .quiz-screen,
+  .start-screen {
+    border-left:  1px solid #ddd6c8;
+    border-right: 1px solid #ddd6c8;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.06);
+  }
+}
+
+/* ============================================================
+   COMPACT: very small screens (older phones, < 600px height)
+   ============================================================ */
+
+@media (max-height: 599px) {
+  .quiz-header {
+    padding: 8px 16px 8px;
+  }
+  .header-top {
+    margin-bottom: 5px;
+  }
+  .progress-track {
+    margin-bottom: 4px;
+  }
+  .plant-name {
+    font-size: 19px;
+  }
+  .plant-scientific {
+    margin-bottom: 8px;
+  }
+  .char-row {
+    min-height: 34px;
+  }
+  .choice-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+    min-height: 34px;
+  }
+  .characteristics {
+    gap: 5px;
+  }
+  .action-area {
+    padding-top: 10px;
+  }
+  .action-btn {
+    padding: 10px;
+    font-size: 15px;
+  }
+}
