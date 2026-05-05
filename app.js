@@ -215,7 +215,7 @@ function renderStart() {
   return `
     <div class="start-screen">
       <header class="start-header">
-        <div class="start-title">FFA Plant Quiz</div>
+        <div class="start-title">Range Quiz</div>
         <div class="start-subtitle">Range Plant Contest Prep</div>
       </header>
 
@@ -308,7 +308,7 @@ function renderQuiz() {
     <div class="quiz-screen">
       <header class="quiz-header">
         <div class="header-top">
-          <span class="quiz-title">FFA Plant Quiz</span>
+          <span class="quiz-title">Range Quiz</span>
           <span class="progress-count">${state.index + 1}&thinsp;/&thinsp;${total}</span>
         </div>
         <div class="progress-track">

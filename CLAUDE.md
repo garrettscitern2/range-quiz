@@ -1,7 +1,7 @@
-# FFA Contest Prep — Project Guide
+# Range Quiz — Project Guide
 
 ## What This Is
-A plain HTML/CSS/JS quiz web app for high school FFA students studying for the Texas FFA Range Plant contest. Students are shown a plant name and must select the correct characteristics by clicking buttons. No build step — open `index.html` directly in a browser.
+A plain HTML/CSS/JS quiz web app for high school students studying for the Texas Range Plant contest. Students are shown a plant name and must select the correct characteristics by clicking buttons. No build step — open `index.html` directly in a browser.
 
 ## Files
 | File | Purpose |
