@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Range Quiz — Sign In</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="auth-screen">
+
+    <header class="auth-header">
+      <div class="auth-title">Range Quiz</div>
+      <div class="auth-subtitle">Range Plant Contest Prep</div>
+    </header>
+
+    <!-- Shown when ?reason=no_subscription -->
+    <div class="auth-notice" id="no-sub-notice" style="display:none">
+      <strong>Access required.</strong> Your account is pending activation.
+      Contact your teacher or purchase a subscription.
+    </div>
+
+    <div class="auth-card">
+
+      <!-- Tab row (hidden in invite flow) -->
+      <div class="auth-tabs" id="auth-tabs">
+        <button class="auth-tab active" data-flow="signin">Sign In</button>
+        <button class="auth-tab" data-flow="teacher">Teacher</button>
+        <button class="auth-tab" data-flow="student">Student</button>
+      </div>
+
+      <!-- ── Sign In ── -->
+      <form class="auth-form active" id="form-signin" novalidate>
+        <div class="auth-field">
+          <label class="auth-label" for="signin-email">Email</label>
+          <input class="auth-input" type="email" id="signin-email"
+                 autocomplete="email" required>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label" for="signin-password">Password</label>
+          <input class="auth-input" type="password" id="signin-password"
+                 autocomplete="current-password" required>
+        </div>
+        <div class="auth-error" id="signin-error"></div>
+        <button class="action-btn" type="submit"
+                data-label="Sign In">Sign In</button>
+      </form>
+
+      <!-- ── Teacher Signup ── -->
+      <form class="auth-form" id="form-teacher" novalidate>
+        <div class="auth-field">
+          <label class="auth-label" for="teacher-name">Full Name</label>
+          <input class="auth-input" type="text" id="teacher-name"
+                 autocomplete="name" required>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label" for="teacher-email">Email</label>
+          <input class="auth-input" type="email" id="teacher-email"
+                 autocomplete="email" required>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label" for="teacher-password">Password</label>
+          <input class="auth-input" type="password" id="teacher-password"
+                 autocomplete="new-password" required minlength="8">
+        </div>
+        <div class="auth-error" id="teacher-error"></div>
+        <button class="action-btn" type="submit"
+                data-label="Create Teacher Account">Create Teacher Account</button>
+      </form>
+
+      <!-- ── Student Signup (direct purchase) ── -->
+      <form class="auth-form" id="form-student" novalidate>
+        <div class="auth-field">
+          <label class="auth-label" for="student-name">Full Name</label>
+          <input class="auth-input" type="text" id="student-name"
+                 autocomplete="name" required>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label" for="student-email">Email</label>
+          <input class="auth-input" type="email" id="student-email"
+                 autocomplete="email" required>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label" for="student-password">Password</label>
+          <input class="auth-input" type="password" id="student-password"
+                 autocomplete="new-password" required minlength="8">
+        </div>
+        <div class="auth-note">
+          After creating your account you'll be able to purchase access.
+          Subscription options coming soon.
+        </div>
+        <div class="auth-error" id="student-error"></div>
+        <button class="action-btn" type="submit"
+                data-label="Create Student Account">Create Student Account</button>
+      </form>
+
+      <!-- ── Seat Invite ── (auto-shown when ?token= is in URL) -->
+      <form class="auth-form" id="form-invite" novalidate>
+        <div class="auth-invite-badge">You've been invited by your teacher</div>
+        <div class="auth-field">
+          <label class="auth-label" for="invite-name">Full Name</label>
+          <input class="auth-input" type="text" id="invite-name"
+                 autocomplete="name" required>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label" for="invite-email">Email</label>
+          <input class="auth-input" type="email" id="invite-email"
+                 autocomplete="email" required>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label" for="invite-password">Password</label>
+          <input class="auth-input" type="password" id="invite-password"
+                 autocomplete="new-password" required minlength="8">
+        </div>
+        <div class="auth-error" id="invite-error"></div>
+        <button class="action-btn" type="submit"
+                data-label="Accept Invite &amp; Sign Up">Accept Invite &amp; Sign Up</button>
+        <div class="auth-footer">
+          <a href="/auth.html">Already have an account? Sign in &rarr;</a>
+        </div>
+      </form>
+
+      <!-- ── Email Confirmation ── (shown when email confirmation is required) -->
+      <div class="auth-form" id="form-confirm">
+        <div class="auth-confirm-icon">&#9993;</div>
+        <div class="auth-confirm-title">Check your email</div>
+        <div class="auth-confirm-text">
+          We sent a confirmation link to your email address.
+          Click it to activate your account, then come back to sign in.
+        </div>
+        <a href="/auth.html" class="action-btn auth-confirm-link">Back to Sign In</a>
+      </div>
+
+    </div><!-- /.auth-card -->
+  </div><!-- /.auth-screen -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/supabase-client.js"></script>
+  <script src="/auth.js"></script>
+</body>
+</html>

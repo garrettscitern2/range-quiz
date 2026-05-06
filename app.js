@@ -2,6 +2,8 @@
 // CONFIGURATION
 // ============================================================
 
+const QUIZ_SET = 'texas'; // used when saving scores to Supabase (Phase 3)
+
 const QUIZ_CONFIG = {
   mode:      'immediate', // 'immediate' | 'end-review' (future)
   filter:    'all',       // 'all' | 'Grass' | 'Forb' | 'Legume' | 'Woody'
@@ -263,6 +265,9 @@ function renderStart() {
         <div class="action-area">
           <button id="start-btn" class="action-btn">Start Quiz</button>
         </div>
+        <div class="auth-signout">
+          <button id="signout-btn" class="auth-signout-btn">Sign out</button>
+        </div>
       </div>
     </div>
   `;
@@ -270,6 +275,11 @@ function renderStart() {
 
 function startScreen() {
   document.getElementById('start-btn').addEventListener('click', initQuiz);
+
+  document.getElementById('signout-btn').addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    window.location.href = '/auth.html';
+  });
 
   document.querySelectorAll('.settings-group').forEach(group => {
     group.addEventListener('click', e => {
@@ -495,7 +505,21 @@ function initQuiz() {
   render();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Guard: must be logged in
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    sessionStorage.setItem('authRedirect', location.href);
+    window.location.href = '/auth.html';
+    return;
+  }
+  // Guard: must have subscription access
+  const canAccess = await checkSubscriptionAccess(session.user.id);
+  if (!canAccess) {
+    sessionStorage.setItem('authRedirect', location.href);
+    window.location.href = '/auth.html?reason=no_subscription';
+    return;
+  }
   const app = document.getElementById('app');
   app.innerHTML = renderStart();
   startScreen();
