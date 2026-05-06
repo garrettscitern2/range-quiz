@@ -12,6 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (noSubReason) {
     document.getElementById('no-sub-notice').style.display = 'block';
     sessionStorage.removeItem('authRedirect'); // prevent stale redirect loops
+    document.getElementById('notice-signout-btn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = '/auth.html';
+    });
   }
 
   if (inviteToken) {

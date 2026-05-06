@@ -266,6 +266,8 @@ function renderStart() {
           <button id="start-btn" class="action-btn">Start Quiz</button>
         </div>
         <div class="auth-signout">
+          <a href="/dashboard.html" class="auth-signout-btn">Dashboard</a>
+          &nbsp;·&nbsp;
           <button id="signout-btn" class="auth-signout-btn">Sign out</button>
         </div>
       </div>

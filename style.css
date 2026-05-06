@@ -757,3 +757,320 @@ html, body {
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.06);
   }
 }
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+
+#dash-root {
+  min-height: 100dvh;
+  background: var(--bg);
+}
+
+.dash-wrap {
+  max-width: 520px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+
+.dash-header {
+  background: var(--green-dark);
+  color: #fff;
+  padding: 0 20px;
+  flex-shrink: 0;
+}
+
+.dash-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  gap: 12px;
+}
+
+.dash-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.dash-subtitle {
+  font-size: 12px;
+  opacity: 0.75;
+  margin-top: 2px;
+}
+
+.dash-header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.dash-header-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.dash-header-link:hover { color: #fff; }
+
+.dash-signout-btn { font-family: inherit; }
+
+/* ── Main ── */
+
+.dash-main {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1;
+}
+
+/* ── Stat grid ── */
+
+.dash-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.dash-stat {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 10px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+}
+
+.dash-stat-val {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--green-dark);
+  line-height: 1.1;
+  word-break: break-word;
+}
+
+.dash-stat-lbl {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* ── Sections ── */
+
+.dash-section {
+  margin-bottom: 24px;
+}
+
+.dash-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.dash-section-subtitle {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+/* ── List rows ── */
+
+.dash-list {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  overflow: hidden;
+}
+
+.dash-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+
+.dash-row:last-child { border-bottom: none; }
+
+.dash-row-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.dash-row-scores {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.dash-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 36px;
+}
+
+.dash-score-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.dash-score-lbl {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.dash-row-date {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.dash-student-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dash-muted {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ── Tags ── */
+
+.dash-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  background: var(--border);
+  color: var(--text);
+  text-transform: capitalize;
+}
+
+.dash-tag--texas    { background: var(--blue-light);    color: var(--blue); }
+.dash-tag--national { background: var(--correct-light); color: var(--correct); }
+
+/* ── Missed plants ── */
+
+.dash-missed-row { justify-content: space-between; }
+
+.dash-missed-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dash-missed-count {
+  font-size: 13px;
+  color: var(--incorrect);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* ── Empty states ── */
+
+.dash-empty {
+  font-size: 14px;
+  color: var(--muted);
+  padding: 16px 14px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+}
+
+.dash-empty a { color: var(--blue); }
+
+/* ── Invite links ── */
+
+.dash-invite-links {
+  margin-bottom: 12px;
+}
+
+.dash-invite-link-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--card);
+  border-radius: var(--radius);
+  margin-bottom: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+}
+
+.dash-invite-link-text {
+  font-size: 11px;
+  color: var(--blue);
+  word-break: break-all;
+  flex: 1;
+}
+
+.dash-copy-btn {
+  flex-shrink: 0;
+  padding: 5px 10px;
+  background: var(--green-dark);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.dash-copy-btn:hover { background: #234a30; }
+
+.dash-invite-gen-btn {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.dash-new-link-box {
+  margin-top: 12px;
+  background: var(--green-light);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.dash-new-link-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 8px;
+}
+
+/* ── Desktop ── */
+
+@media (min-width: 521px) {
+  .dash-wrap {
+    border-left:  1px solid #ddd6c8;
+    border-right: 1px solid #ddd6c8;
+    box-shadow: 0 0 40px rgba(0,0,0,0.06);
+  }
+}
