@@ -44,6 +44,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── Utilities ────────────────────────────────────────────────
 
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), ms)
+    )
+  ]);
+}
+
 async function redirectAfterLogin() {
   const dest = sessionStorage.getItem('authRedirect') || '/index.html';
   sessionStorage.removeItem('authRedirect');
@@ -96,11 +105,20 @@ async function handleSignIn(e) {
   const password = document.getElementById('signin-password').value;
 
   setLoading('form-signin', true);
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  setLoading('form-signin', false);
-
-  if (error) { showError('signin-error', friendlyError(error)); return; }
-  await redirectAfterLogin();
+  try {
+    const { error } = await withTimeout(
+      supabase.auth.signInWithPassword({ email, password }), 10000
+    );
+    if (error) { showError('signin-error', friendlyError(error)); return; }
+    await redirectAfterLogin();
+  } catch (err) {
+    console.error('Sign in error:', err);
+    showError('signin-error', err.message === 'timeout'
+      ? 'Connection timed out. Is your Supabase project active?'
+      : friendlyError(err));
+  } finally {
+    setLoading('form-signin', false);
+  }
 }
 
 async function handleTeacherSignup(e) {
@@ -112,20 +130,27 @@ async function handleTeacherSignup(e) {
   const password = document.getElementById('teacher-password').value;
 
   setLoading('form-teacher', true);
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { data: { role: 'teacher', full_name: name } }
-  });
-  setLoading('form-teacher', false);
-
-  if (error) { showError('teacher-error', friendlyError(error)); return; }
-
-  // If email confirmation is disabled, data.session is set immediately
-  if (data.session) {
-    await redirectAfterLogin();
-  } else {
-    switchForm('confirm');
+  try {
+    const { data, error } = await withTimeout(
+      supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { role: 'teacher', full_name: name } }
+      }), 10000
+    );
+    if (error) { showError('teacher-error', friendlyError(error)); return; }
+    if (data.session) {
+      await redirectAfterLogin();
+    } else {
+      switchForm('confirm');
+    }
+  } catch (err) {
+    console.error('Teacher signup error:', err);
+    showError('teacher-error', err.message === 'timeout'
+      ? 'Connection timed out. Is your Supabase project active?'
+      : friendlyError(err));
+  } finally {
+    setLoading('form-teacher', false);
   }
 }
 
@@ -138,20 +163,27 @@ async function handleStudentSignup(e) {
   const password = document.getElementById('student-password').value;
 
   setLoading('form-student', true);
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { data: { role: 'student', full_name: name } }
-  });
-  setLoading('form-student', false);
-
-  if (error) { showError('student-error', friendlyError(error)); return; }
-
-  if (data.session) {
-    // Signed in but no subscription yet — show the no-access notice
-    window.location.href = '/auth.html?reason=no_subscription';
-  } else {
-    switchForm('confirm');
+  try {
+    const { data, error } = await withTimeout(
+      supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { role: 'student', full_name: name } }
+      }), 10000
+    );
+    if (error) { showError('student-error', friendlyError(error)); return; }
+    if (data.session) {
+      window.location.href = '/auth.html?reason=no_subscription';
+    } else {
+      switchForm('confirm');
+    }
+  } catch (err) {
+    console.error('Student signup error:', err);
+    showError('student-error', err.message === 'timeout'
+      ? 'Connection timed out. Is your Supabase project active?'
+      : friendlyError(err));
+  } finally {
+    setLoading('form-student', false);
   }
 }
 
