@@ -45,6 +45,21 @@ BEGIN
     COALESCE(NEW.raw_user_meta_data->>'role', 'student'),
     COALESCE(NEW.raw_user_meta_data->>'full_name', '')
   );
+
+  -- ⚠️  TESTING ONLY — remove this block when Stripe is integrated (Phase 5)
+  -- Auto-grants every new user a free individual subscription so the quiz
+  -- is accessible without any manual Supabase table edits during development.
+  INSERT INTO public.subscriptions (owner_id, tier, seats_purchased, seats_used, is_active, expires_at)
+  VALUES (
+    NEW.id,
+    'individual',
+    1,
+    0,
+    true,
+    '2027-06-01 00:00:00+00'::timestamptz
+  );
+  -- ⚠️  END TESTING BLOCK
+
   RETURN NEW;
 END;
 $$;
