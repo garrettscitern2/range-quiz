@@ -303,6 +303,7 @@ function startScreen() {
 function render() {
   const app = document.getElementById('app');
   if (state.index >= state.queue.length) {
+    saveQuizSession(); // fire-and-forget — does not block UI
     app.innerHTML = renderResults();
     document.getElementById('change-settings-btn').addEventListener('click', () => {
       app.innerHTML = renderStart();
@@ -472,11 +473,58 @@ function submitAnswers() {
   state.score.charsTotal += cats.length;
   if (plantCorrect) state.score.plants++;
 
+  state.attempts.push({
+    plant_id:          plant.id,
+    plant_name:        plant.name,
+    was_fully_correct: plantCorrect,
+    chars_correct:     charRight,
+    chars_total:       cats.length
+  });
+
   const actionBtn = document.getElementById('action-btn');
   const isLast    = state.index >= state.queue.length - 1;
   actionBtn.textContent = isLast ? 'See Results' : 'Next Plant →';
   actionBtn.disabled    = false;
   if (plantCorrect) actionBtn.classList.add('correct-btn');
+}
+
+async function saveQuizSession() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const { data: saved, error } = await supabase
+      .from('quiz_sessions')
+      .insert({
+        user_id:         session.user.id,
+        quiz_set:        QUIZ_SET,
+        filter_category: QUIZ_CONFIG.filter === 'all' ? null : QUIZ_CONFIG.filter,
+        question_count:  state.queue.length,
+        plants_correct:  state.score.plants,
+        chars_correct:   state.score.chars,
+        chars_total:     state.score.charsTotal,
+        mode:            QUIZ_CONFIG.mode
+      })
+      .select('id')
+      .single();
+
+    if (error || !saved) { console.error('quiz_sessions insert failed:', error); return; }
+
+    await supabase.from('plant_attempts').insert(
+      state.attempts.map(a => ({
+        session_id:        saved.id,
+        user_id:           session.user.id,
+        quiz_set:          QUIZ_SET,
+        plant_id:          a.plant_id,
+        plant_name:        a.plant_name,
+        was_fully_correct: a.was_fully_correct,
+        chars_correct:     a.chars_correct,
+        chars_total:       a.chars_total
+      }))
+    );
+  } catch (err) {
+    console.error('saveQuizSession failed:', err);
+  }
 }
 
 function nextPlant() {
@@ -500,7 +548,8 @@ function initQuiz() {
     index:     0,
     submitted: false,
     answers:   {},
-    score:     { plants: 0, chars: 0, charsTotal: 0 }
+    score:     { plants: 0, chars: 0, charsTotal: 0 },
+    attempts:  []
   };
   render();
 }
