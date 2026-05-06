@@ -1,6 +1,7 @@
 -- ============================================================
 -- Range Quiz — Supabase Schema
 -- Run this in: Supabase Dashboard → SQL Editor → New query
+-- Safe to re-run: uses IF NOT EXISTS + DROP POLICY IF EXISTS
 -- ============================================================
 
 -- ── Extensions ─────────────────────────────────────────────
@@ -19,16 +20,20 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "profiles: own row select"            ON public.profiles;
+DROP POLICY IF EXISTS "profiles: teacher sees their students" ON public.profiles;
+DROP POLICY IF EXISTS "profiles: own row update"            ON public.profiles;
+
 CREATE POLICY "profiles: own row select"
   ON public.profiles FOR SELECT
   USING (auth.uid() = id);
 
--- NOTE: "profiles: teacher sees their students" is added after
---       the seats table is created below (avoids forward-reference error).
-
 CREATE POLICY "profiles: own row update"
   ON public.profiles FOR UPDATE
   USING (auth.uid() = id);
+
+-- NOTE: "profiles: teacher sees their students" is added after
+--       the seats table is created below (avoids forward-reference error).
 
 -- Trigger: auto-create profile row when a user signs up
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -68,6 +73,9 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
 
 ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "subscriptions: owner select" ON public.subscriptions;
+DROP POLICY IF EXISTS "subscriptions: admin select" ON public.subscriptions;
+
 CREATE POLICY "subscriptions: owner select"
   ON public.subscriptions FOR SELECT
   USING (auth.uid() = owner_id);
@@ -96,6 +104,11 @@ CREATE TABLE IF NOT EXISTS public.seats (
 );
 
 ALTER TABLE public.seats ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "seats: teacher sees own seats"  ON public.seats;
+DROP POLICY IF EXISTS "seats: student sees own seat"   ON public.seats;
+DROP POLICY IF EXISTS "seats: teacher inserts"         ON public.seats;
+DROP POLICY IF EXISTS "seats: student claims own seat" ON public.seats;
 
 CREATE POLICY "seats: teacher sees own seats"
   ON public.seats FOR SELECT
@@ -161,6 +174,9 @@ CREATE TABLE IF NOT EXISTS public.quiz_sessions (
 
 ALTER TABLE public.quiz_sessions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "quiz_sessions: own rows"             ON public.quiz_sessions;
+DROP POLICY IF EXISTS "quiz_sessions: teacher sees students" ON public.quiz_sessions;
+
 CREATE POLICY "quiz_sessions: own rows"
   ON public.quiz_sessions FOR ALL
   USING (auth.uid() = user_id);
@@ -192,6 +208,9 @@ CREATE TABLE IF NOT EXISTS public.plant_attempts (
 );
 
 ALTER TABLE public.plant_attempts ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "plant_attempts: own rows"             ON public.plant_attempts;
+DROP POLICY IF EXISTS "plant_attempts: teacher sees students" ON public.plant_attempts;
 
 CREATE POLICY "plant_attempts: own rows"
   ON public.plant_attempts FOR ALL

@@ -6,13 +6,8 @@ const params      = new URLSearchParams(location.search);
 const inviteToken = params.get('token');
 const noSubReason = params.get('reason') === 'no_subscription';
 
-document.addEventListener('DOMContentLoaded', async () => {
-  // Already logged in → go straight to destination
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    await redirectAfterLogin();
-    return;
-  }
+document.addEventListener('DOMContentLoaded', () => {
+  // ── Wire up UI immediately (don't block on async session check) ──
 
   if (noSubReason) {
     document.getElementById('no-sub-notice').style.display = 'block';
@@ -38,6 +33,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('form-teacher').addEventListener('submit', handleTeacherSignup);
   document.getElementById('form-student').addEventListener('submit', handleStudentSignup);
   document.getElementById('form-invite') .addEventListener('submit', handleInviteSignup);
+
+  // ── Check if already logged in (async, after UI is ready) ──
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) redirectAfterLogin();
+  }).catch(() => {
+    // Session check failed — stay on auth page, user can still sign in
+  });
 });
 
 // ── Utilities ────────────────────────────────────────────────
