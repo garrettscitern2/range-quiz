@@ -561,14 +561,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Guard: must be logged in
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      sessionStorage.setItem('authRedirect', location.href);
       window.location.href = '/auth.html';
       return;
     }
     // Guard: must have subscription access
     const canAccess = await checkSubscriptionAccess(session.user.id);
     if (!canAccess) {
-      sessionStorage.setItem('authRedirect', location.href);
       window.location.href = '/auth.html?reason=no_subscription';
       return;
     }
@@ -577,7 +575,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     startScreen();
   } catch (err) {
     console.error('Auth guard error:', err);
-    sessionStorage.setItem('authRedirect', location.href);
     window.location.href = '/auth.html';
   }
 });

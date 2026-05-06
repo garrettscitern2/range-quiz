@@ -120,10 +120,11 @@ CREATE TABLE IF NOT EXISTS public.seats (
 
 ALTER TABLE public.seats ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "seats: teacher sees own seats"  ON public.seats;
-DROP POLICY IF EXISTS "seats: student sees own seat"   ON public.seats;
-DROP POLICY IF EXISTS "seats: teacher inserts"         ON public.seats;
-DROP POLICY IF EXISTS "seats: student claims own seat" ON public.seats;
+DROP POLICY IF EXISTS "seats: teacher sees own seats"    ON public.seats;
+DROP POLICY IF EXISTS "seats: student sees own seat"     ON public.seats;
+DROP POLICY IF EXISTS "seats: teacher inserts"           ON public.seats;
+DROP POLICY IF EXISTS "seats: student claims own seat"   ON public.seats;
+DROP POLICY IF EXISTS "seats: public invite token lookup" ON public.seats;
 
 CREATE POLICY "seats: teacher sees own seats"
   ON public.seats FOR SELECT
@@ -132,6 +133,13 @@ CREATE POLICY "seats: teacher sees own seats"
 CREATE POLICY "seats: student sees own seat"
   ON public.seats FOR SELECT
   USING (auth.uid() = student_id);
+
+-- Anyone (including unauthenticated users) can look up an unclaimed seat by
+-- invite token so the signup form can verify the link before creating an account.
+-- Safe because invite tokens are random UUIDs — unforgeable without the link.
+CREATE POLICY "seats: public invite token lookup"
+  ON public.seats FOR SELECT
+  USING (student_id IS NULL);
 
 CREATE POLICY "seats: teacher inserts"
   ON public.seats FOR INSERT

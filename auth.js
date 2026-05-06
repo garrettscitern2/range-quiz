@@ -63,7 +63,7 @@ function withTimeout(promise, ms) {
 }
 
 async function redirectAfterLogin() {
-  const dest = sessionStorage.getItem('authRedirect') || '/index.html';
+  const dest = sessionStorage.getItem('authRedirect') || '/dashboard.html';
   sessionStorage.removeItem('authRedirect');
   window.location.href = dest;
 }
