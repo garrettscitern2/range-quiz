@@ -717,6 +717,18 @@ html, body {
   display: block;
 }
 
+/* ── Auth loading state ───────────────────────────────────── */
+
+.auth-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100dvh;
+  font-size: 16px;
+  color: var(--muted);
+  background: var(--bg);
+}
+
 /* ── Sign-out button in start screen ─────────────────────── */
 
 .auth-signout {
