@@ -312,7 +312,7 @@ function renderQuiz() {
   const total = state.queue.length;
   const pct = (state.index / total) * 100;
   const cats = getCategories(plant);
-  const typeLabel = plant.category;
+  const typeLabel = plant.type;
 
   return `
     <div class="quiz-screen">
@@ -330,7 +330,7 @@ function renderQuiz() {
       </header>
 
       <div class="card">
-        <div class="type-badge ${plant.category.toLowerCase()}">${typeLabel}</div>
+        <div class="type-badge ${plant.type}">${typeLabel}</div>
         <h2 class="plant-name">${plant.name}</h2>
 
         <div class="characteristics" id="characteristics">
