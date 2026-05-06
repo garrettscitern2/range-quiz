@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (noSubReason) {
     document.getElementById('no-sub-notice').style.display = 'block';
+    sessionStorage.removeItem('authRedirect'); // prevent stale redirect loops
   }
 
   if (inviteToken) {
@@ -35,11 +36,15 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('form-invite') .addEventListener('submit', handleInviteSignup);
 
   // ── Check if already logged in (async, after UI is ready) ──
-  supabase.auth.getSession().then(({ data: { session } }) => {
-    if (session) redirectAfterLogin();
-  }).catch(() => {
-    // Session check failed — stay on auth page, user can still sign in
-  });
+  // Skip auto-redirect when showing the no-subscription notice — the user
+  // is already logged in but has no access; redirecting would cause a loop.
+  if (!noSubReason) {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) redirectAfterLogin();
+    }).catch(() => {
+      // Session check failed — stay on auth page, user can still sign in
+    });
+  }
 });
 
 // ── Utilities ────────────────────────────────────────────────
