@@ -14,7 +14,8 @@ const SUPABASE_URL      = 'https://ohymwqkvdkhnmmhqxids.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_aQbR8d0vFF1wvNAhSqTj-A_1wAQ0KNR';
 
 // eslint-disable-next-line no-undef
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// var (not const) so the client is accessible as window.supabase from all scripts
+var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ── Access check ────────────────────────────────────────────
 // Returns true if the given user is allowed to use the quiz.
