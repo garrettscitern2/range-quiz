@@ -227,7 +227,7 @@ function renderStart() {
     <div class="start-screen">
       <header class="start-header">
         <div class="start-title">Range Quiz</div>
-        <div class="start-subtitle">Range Plant Contest Prep</div>
+        <div class="start-subtitle">National — Range Plant Contest Prep</div>
       </header>
 
       <div class="settings-card">

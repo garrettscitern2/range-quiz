@@ -6,122 +6,120 @@ const QUIZ_SET = 'texas'; // used when saving scores to Supabase (Phase 3)
 
 const QUIZ_CONFIG = {
   mode:      'immediate', // 'immediate' | 'end-review' (future)
-  filter:    'all',       // 'all' | 'Grass' | 'Forb' | 'Legume' | 'Woody'
+  filter:    'all',       // 'all' | 'grass' | 'forb' | 'legume' | 'woody'
   count:     null,        // null = all in filtered set; number = random subset
   randomize: true         // true = shuffle; false = in-order by ID
 };
 
 // ============================================================
-// PLANT DATA  (source: national-plants.json — 100 plants)
-// category: Grass | Legume | Forb | Woody
-// stature: Short | Mid | Tall | null (null for non-Grasses)
-// lifecycle: Annual | Perennial  |  season: Warm | Cool
-// origin_native_status: Native | Introduced
-// origin_invasive_status: Invasive | null (null = Non-Invasive)
-// bobwhite_quail_food / _cover / cattle_food: Desirable | Undesirable
+// PLANT DATA  (Texas — 90 plants)
+// type: grass | legume | forb | woody
+// stature: S | M | T (grasses only; null for others)
+// lifecycle: A=Annual | P=Perennial
+// season: W=Warm | C=Cool
+// origin: N=Native | In=Introduced
+// invasive: boolean
+// desirable: boolean
 // ============================================================
 
 const PLANTS = [
-  {"id":2,"name":"Annual Threeawn","category":"Grass","stature":"Short","lifecycle":"Annual","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Undesirable"},
-  {"id":3,"name":"Bermudagrass","category":"Grass","stature":"Short","lifecycle":"Perennial","season":"Warm","origin_native_status":"Introduced","origin_invasive_status":"Invasive","bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Desirable"},
-  {"id":4,"name":"Big or Sand Bluestem","category":"Grass","stature":"Tall","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":5,"name":"Blue Grama","category":"Grass","stature":"Short","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Desirable"},
-  {"id":7,"name":"Brome","category":"Grass","stature":"Short","lifecycle":"Annual","season":"Cool","origin_native_status":"Introduced","origin_invasive_status":"Invasive","bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Undesirable"},
-  {"id":8,"name":"Broomsedge Bluestem","category":"Grass","stature":"Tall","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":9,"name":"Buffalograss","category":"Grass","stature":"Short","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Desirable"},
-  {"id":10,"name":"Canada Wild rye","category":"Grass","stature":"Mid","lifecycle":"Perennial","season":"Cool","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":11,"name":"Eastern Gamagrass","category":"Grass","stature":"Tall","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":14,"name":"Hairy Grama","category":"Grass","stature":"Short","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Desirable"},
-  {"id":15,"name":"Indiangrass","category":"Grass","stature":"Tall","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":17,"name":"Johnsongrass","category":"Grass","stature":"Tall","lifecycle":"Perennial","season":"Warm","origin_native_status":"Introduced","origin_invasive_status":"Invasive","bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":18,"name":"Little Barley","category":"Grass","stature":"Short","lifecycle":"Annual","season":"Cool","origin_native_status":"Introduced","origin_invasive_status":"Invasive","bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Undesirable"},
-  {"id":19,"name":"Little Bluestem","category":"Grass","stature":"Tall","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":20,"name":"Old World Bluestem","category":"Grass","stature":"Mid","lifecycle":"Perennial","season":"Warm","origin_native_status":"Introduced","origin_invasive_status":"Invasive","bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Desirable"},
-  {"id":21,"name":"Perennial Threeawn","category":"Grass","stature":"Mid","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Undesirable"},
-  {"id":24,"name":"Prairie Sedge","category":"Grass","stature":"Short","lifecycle":"Perennial","season":"Cool","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Desirable"},
-  {"id":25,"name":"Purpletop","category":"Grass","stature":"Tall","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":27,"name":"Sand Dropseed","category":"Grass","stature":"Mid","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":28,"name":"Sand Lovegrass","category":"Grass","stature":"Mid","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Desirable"},
-  {"id":29,"name":"Scribner Panicum","category":"Grass","stature":"Short","lifecycle":"Perennial","season":"Cool","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Desirable"},
-  {"id":30,"name":"Sideoats Grama","category":"Grass","stature":"Mid","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":31,"name":"Silver Bluestem","category":"Grass","stature":"Mid","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":32,"name":"Splitbeard Bluestem","category":"Grass","stature":"Mid","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":33,"name":"Switchgrass","category":"Grass","stature":"Tall","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":34,"name":"Tall Dropseed","category":"Grass","stature":"Tall","lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":35,"name":"Tall Fescue","category":"Grass","stature":"Mid","lifecycle":"Perennial","season":"Cool","origin_native_status":"Introduced","origin_invasive_status":"Invasive","bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Desirable"},
-  {"id":36,"name":"Texas Bluegrass","category":"Grass","stature":"Mid","lifecycle":"Perennial","season":"Cool","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Desirable"},
-  {"id":39,"name":"Western Wheatgrass","category":"Grass","stature":"Mid","lifecycle":"Perennial","season":"Cool","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":40,"name":"Catclaw Sensitivebriar","category":"Legume","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":41,"name":"Groundplum","category":"Legume","stature":null,"lifecycle":"Perennial","season":"Cool","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Desirable"},
-  {"id":42,"name":"Hairy Vetch","category":"Legume","stature":null,"lifecycle":"Annual","season":"Cool","origin_native_status":"Introduced","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Desirable"},
-  {"id":43,"name":"Illinois Bundleflower","category":"Legume","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":44,"name":"Leadplant","category":"Legume","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":45,"name":"Prairie Acacia","category":"Legume","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":46,"name":"Purple Prairie Clover","category":"Legume","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":47,"name":"Roundhead Lespedeza","category":"Legume","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":48,"name":"Scurfpea","category":"Legume","stature":null,"lifecycle":"Perennial","season":"Cool","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":49,"name":"Sericea Lespedeza","category":"Legume","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Introduced","origin_invasive_status":"Invasive","bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Undesirable"},
-  {"id":50,"name":"Sessile-leaved Tickclover","category":"Legume","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":51,"name":"Slender Dalea","category":"Legume","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":52,"name":"Slender Lespedeza","category":"Legume","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":54,"name":"Trailing Wildbean","category":"Legume","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":56,"name":"Wild Indigo","category":"Legume","stature":null,"lifecycle":"Perennial","season":"Cool","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":57,"name":"Woolly Loco","category":"Legume","stature":null,"lifecycle":"Perennial","season":"Cool","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Undesirable"},
-  {"id":58,"name":"Yellow Neptune","category":"Legume","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":59,"name":"Annual Sunflower","category":"Forb","stature":null,"lifecycle":"Annual","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":60,"name":"Antelopehorn Milkweed","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Cool","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":61,"name":"Ashy Sunflower","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":64,"name":"Blackeyed Susan","category":"Forb","stature":null,"lifecycle":"Annual","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":65,"name":"Blacksamson","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":67,"name":"Common Broomweed","category":"Forb","stature":null,"lifecycle":"Annual","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":68,"name":"Compass Plant","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":69,"name":"Croton","category":"Forb","stature":null,"lifecycle":"Annual","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":71,"name":"Daisy Fleabane","category":"Forb","stature":null,"lifecycle":"Annual","season":"Cool","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":72,"name":"Dotted Gayfeather","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":74,"name":"Giant Ragweed","category":"Forb","stature":null,"lifecycle":"Annual","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":75,"name":"Goat's Beard","category":"Forb","stature":null,"lifecycle":"Annual","season":"Cool","origin_native_status":"Introduced","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Undesirable"},
-  {"id":76,"name":"Goldenrod","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":77,"name":"Halfshrub Sundrop","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":78,"name":"Heath Aster","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":79,"name":"Horseweed","category":"Forb","stature":null,"lifecycle":"Annual","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":82,"name":"Maximilian Sunflower","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":83,"name":"Mexican Hat","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":84,"name":"Pepperweed","category":"Forb","stature":null,"lifecycle":"Annual","season":"Cool","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Desirable"},
-  {"id":85,"name":"Pitcher Sage","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Desirable"},
-  {"id":86,"name":"Plains Yucca","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Cool","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":87,"name":"Prickly Pear Cactus","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":"Invasive","bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":88,"name":"Sagewort","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":90,"name":"Snow-on-the-mountain","category":"Forb","stature":null,"lifecycle":"Annual","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":93,"name":"Violet Wood Sorrel","category":"Forb","stature":null,"lifecycle":"Annual","season":"Cool","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Undesirable"},
-  {"id":94,"name":"Wax Goldenweed","category":"Forb","stature":null,"lifecycle":"Annual","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":95,"name":"Western Ironweed","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":96,"name":"Western Ragweed","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":97,"name":"White Snakeroot","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":98,"name":"Yarrow","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Cool","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Undesirable"},
-  {"id":99,"name":"Yellow Puccoon","category":"Forb","stature":null,"lifecycle":"Perennial","season":"Cool","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":101,"name":"American Elm","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Desirable"},
-  {"id":103,"name":"Blackjack Oak","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":104,"name":"Buckbrush","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":105,"name":"Buttonbush","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":106,"name":"Chittamwood","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":107,"name":"Eastern Cottonwood","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Desirable"},
-  {"id":108,"name":"Eastern Redcedar","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Cool","origin_native_status":"Native","origin_invasive_status":"Invasive","bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Undesirable","cattle_food":"Undesirable"},
-  {"id":109,"name":"False Indigo","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":110,"name":"Fragrant Sumac","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":111,"name":"Greenbrier","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":112,"name":"Hackberry","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":115,"name":"Oklahoma Blackberry","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":"Invasive","bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":116,"name":"Osage Orange","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":118,"name":"Poison-ivy","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":119,"name":"Post Oak","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":120,"name":"Redbud","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":121,"name":"Rough-leaf Dogwood","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":123,"name":"Sand Plum","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":126,"name":"Soapberry","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":127,"name":"Southern Blackhaw","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":128,"name":"Sumac","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Undesirable"},
-  {"id":129,"name":"Virginia Creeper","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":null,"bobwhite_quail_food":"Desirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
-  {"id":130,"name":"Winged Elm","category":"Woody","stature":null,"lifecycle":"Perennial","season":"Warm","origin_native_status":"Native","origin_invasive_status":"Invasive","bobwhite_quail_food":"Undesirable","bobwhite_quail_cover":"Desirable","cattle_food":"Desirable"},
+  // ── Grasses ─────────────────────────────────────────────
+  { id:1,  name:'Annual Threeawn',          scientific:'Aristida sp.',                type:'grass',  stature:'S', lifecycle:'A', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:2,  name:'Annual Brome',             scientific:'Bromus sp.',                  type:'grass',  stature:'S', lifecycle:'A', season:'C', origin:'In', invasive:true,  desirable:false },
+  { id:3,  name:'Bermudagrass',             scientific:'Cynodon dactylon',            type:'grass',  stature:'S', lifecycle:'P', season:'W', origin:'In', invasive:true,  desirable:true  },
+  { id:4,  name:'Big Bluestem',             scientific:'Andropogon gerardii',         type:'grass',  stature:'T', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:5,  name:'Blue Grama',               scientific:'Bouteloua gracilis',          type:'grass',  stature:'S', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:6,  name:'Broomsedge Bluestem',      scientific:'Andropogon virginicus',       type:'grass',  stature:'T', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:7,  name:'Buffalograss',             scientific:'Buchloe dactyloides',         type:'grass',  stature:'S', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:8,  name:'Curly Mesquite',           scientific:'Hiliaria berlangeri',         type:'grass',  stature:'S', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:9,  name:'Eastern Gamagrass',        scientific:'Tripsacum dactyloides',       type:'grass',  stature:'T', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:10, name:'Fall Witchgrass',          scientific:'Leptoloma cognatum',          type:'grass',  stature:'S', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:11, name:'Hairy Grama',              scientific:'Bouteloua hirsuta',           type:'grass',  stature:'S', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:12, name:'Hairy Tridens',            scientific:'Erioneuron pilosum',          type:'grass',  stature:'S', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:13, name:'Indiangrass',              scientific:'Sorghastrum nutans',          type:'grass',  stature:'T', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:14, name:'Johnsongrass',             scientific:'Sorghum halapense',           type:'grass',  stature:'T', lifecycle:'P', season:'W', origin:'In', invasive:true,  desirable:true  },
+  { id:15, name:'Little Barley',            scientific:'Hordeum pusillum',            type:'grass',  stature:'S', lifecycle:'A', season:'C', origin:'In', invasive:true,  desirable:false },
+  { id:16, name:'Little Bluestem',          scientific:'Schizachyrium scorparium',    type:'grass',  stature:'T', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:17, name:'Old World Bluestem',       scientific:'Bothriochloa ischaemum',      type:'grass',  stature:'M', lifecycle:'P', season:'W', origin:'In', invasive:true,  desirable:true  },
+  { id:18, name:'Perennial Dropseed',       scientific:'Sporobolus sp.',              type:'grass',  stature:'T', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:19, name:'Perennial Threeawn',       scientific:'Aristida sp.',                type:'grass',  stature:'M', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:20, name:'Purpletop',                scientific:'Tridens flavus',              type:'grass',  stature:'T', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:21, name:'Red Grama',                scientific:'Bouteloua trifida',           type:'grass',  stature:'S', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:22, name:'Sand Dropseed',            scientific:'Sporobolus cryptandrus',      type:'grass',  stature:'M', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:23, name:'Sand Lovegrass',           scientific:'Eragrostis trichodes',        type:'grass',  stature:'M', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:24, name:'Scribner Panicum',         scientific:'Panicum oligosanthes',        type:'grass',  stature:'S', lifecycle:'P', season:'C', origin:'N',  invasive:false, desirable:true  },
+  { id:25, name:'Sedge',                    scientific:'Carex sp.',                   type:'grass',  stature:'S', lifecycle:'P', season:'C', origin:'N',  invasive:false, desirable:true  },
+  { id:26, name:'Sideoats Grama',           scientific:'Bouteloua curtipendula',      type:'grass',  stature:'M', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:27, name:'Silver Bluestem',          scientific:'Bothriochloa saccharoides',   type:'grass',  stature:'M', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:28, name:'Splitbeard Bluestem',      scientific:'Andropogon ternarius',        type:'grass',  stature:'M', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:29, name:'Switchgrass',              scientific:'Panicum virgatum',            type:'grass',  stature:'T', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:30, name:'Texas Bluegrass',          scientific:'Poa arachnifera',             type:'grass',  stature:'M', lifecycle:'P', season:'C', origin:'N',  invasive:false, desirable:true  },
+  { id:31, name:'Texas Grama',              scientific:'Bouteloua rigidiseta',        type:'grass',  stature:'S', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:32, name:'Texas Wintergrass',        scientific:'Nasella leucotricha',         type:'grass',  stature:'S', lifecycle:'P', season:'C', origin:'N',  invasive:false, desirable:true  },
+  { id:33, name:'Tumblegrass',              scientific:'Schedonnardus paniculatus',   type:'grass',  stature:'S', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:34, name:'Vine Mesquite',            scientific:'Panicum obtusum',             type:'grass',  stature:'M', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:35, name:'Weeping Lovegrass',        scientific:'Eragrostis curvula',          type:'grass',  stature:'M', lifecycle:'P', season:'W', origin:'In', invasive:false, desirable:true  },
+  { id:36, name:'Western Wheatgrass',       scientific:'Pascopyrum smithii',          type:'grass',  stature:'M', lifecycle:'P', season:'C', origin:'N',  invasive:false, desirable:true  },
+  { id:37, name:'Wildrye',                  scientific:'Elymus sp.',                  type:'grass',  stature:'M', lifecycle:'P', season:'C', origin:'N',  invasive:false, desirable:true  },
+  { id:38, name:'Windmillgrass',            scientific:'Chloris sp.',                 type:'grass',  stature:'S', lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+
+  // ── Legumes ─────────────────────────────────────────────
+  { id:39, name:'Catclaw Sensitivebriar',   scientific:'Mimosa quadrivalis',          type:'legume', stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:40, name:'Bundleflower',             scientific:'Desmanthus sp.',              type:'legume', stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:41, name:'Prairie Clover',           scientific:'Dalea sp.',                   type:'legume', stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:42, name:'Scurfpea',                 scientific:'Psoralidium sp.',             type:'legume', stature:null, lifecycle:'P', season:'C', origin:'N',  invasive:false, desirable:false },
+  { id:43, name:'Slender Dalea',            scientific:'Dalea enneandra',             type:'legume', stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:44, name:'Vetch',                    scientific:'Vicia sp.',                   type:'legume', stature:null, lifecycle:'A', season:'C', origin:'In', invasive:false, desirable:true  },
+  { id:45, name:'Yellow Neptune',           scientific:'Neptunia lutea',              type:'legume', stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+
+  // ── Forbs ────────────────────────────────────────────────
+  { id:46, name:'Annual Sunflower',         scientific:'Helianthus annuus',           type:'forb',   stature:null, lifecycle:'A', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:47, name:'Antelopehorn Milkweed',    scientific:'Asclepias viridis',           type:'forb',   stature:null, lifecycle:'P', season:'C', origin:'N',  invasive:false, desirable:false },
+  { id:48, name:'Beebalm',                  scientific:'Monarda citriodora',          type:'forb',   stature:null, lifecycle:'A', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:49, name:'Blackeyed Susan',          scientific:'Rudbeckia hirta',             type:'forb',   stature:null, lifecycle:'A', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:50, name:'Common Broomweed',         scientific:'Gutierrezia dracunculoides',  type:'forb',   stature:null, lifecycle:'A', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:51, name:'Compass Plant',            scientific:'Silphium laciniatum',         type:'forb',   stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:52, name:'Croton',                   scientific:'Croton sp.',                  type:'forb',   stature:null, lifecycle:'A', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:53, name:'Curlycup Gumweed',         scientific:'Grindelia squarrosa',         type:'forb',   stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:54, name:'Daisy Fleabane',           scientific:'Erigeron strigosus',          type:'forb',   stature:null, lifecycle:'A', season:'C', origin:'N',  invasive:false, desirable:false },
+  { id:55, name:'Dotted Gayfeather',        scientific:'Liatris punctata',            type:'forb',   stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:56, name:'Engelmann Daisy',          scientific:'Engelmannia peristenia',      type:'forb',   stature:null, lifecycle:'P', season:'C', origin:'N',  invasive:false, desirable:true  },
+  { id:57, name:'Giant Ragweed',            scientific:'Ambrosia trifida',            type:'forb',   stature:null, lifecycle:'A', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:58, name:'Halfshrub Sundrop',        scientific:'Calylophus serrulatus',       type:'forb',   stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:59, name:'Heath Aster',              scientific:'Aster ericoides',             type:'forb',   stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:60, name:'Horseweed',                scientific:'Conyza canadensis',           type:'forb',   stature:null, lifecycle:'A', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:61, name:'Maximilian Sunflower',     scientific:'Helianthus maximiliani',      type:'forb',   stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:62, name:'Pepperweed',               scientific:'Lepidium virginicum',         type:'forb',   stature:null, lifecycle:'A', season:'C', origin:'N',  invasive:false, desirable:true  },
+  { id:63, name:'Prairie Coneflower',       scientific:'Ratibida columnifera',        type:'forb',   stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:64, name:'Plains Yucca',             scientific:'Yucca glauca',                type:'forb',   stature:null, lifecycle:'P', season:'C', origin:'N',  invasive:false, desirable:false },
+  { id:65, name:'Prickly Pear Cactus',      scientific:'Opuntia macrorhiza',          type:'forb',   stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:true,  desirable:false },
+  { id:66, name:'Sagewort',                 scientific:'Artemisia ludoviciana',       type:'forb',   stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:67, name:'Silverleaf Nightshade',    scientific:'Solanum elaeagnifolium',      type:'forb',   stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:68, name:'Snow-on-the-Mountain',     scientific:'Euphorbia marginata',         type:'forb',   stature:null, lifecycle:'A', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:69, name:'Wax Goldenweed',           scientific:'Haplopappus ciliatus',        type:'forb',   stature:null, lifecycle:'A', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:70, name:'Western Ironweed',         scientific:'Vernonia baldwinii',          type:'forb',   stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:71, name:'Western Ragweed',          scientific:'Ambrosia psilostachya',       type:'forb',   stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:72, name:'Wood Sorrel',              scientific:'Oxalis sp.',                  type:'forb',   stature:null, lifecycle:'A', season:'C', origin:'N',  invasive:false, desirable:false },
+  { id:73, name:'Yarrow',                   scientific:'Achillea millefolium',        type:'forb',   stature:null, lifecycle:'P', season:'C', origin:'N',  invasive:false, desirable:false },
+
+  // ── Woodies ──────────────────────────────────────────────
+  { id:74, name:'Blackberry / Dewberry',    scientific:'Rubus sp.',                   type:'woody',  stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:true,  desirable:false },
+  { id:75, name:'Blackjack Oak',            scientific:'Quercus marilandica',         type:'woody',  stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:76, name:'Cedar',                    scientific:'Juniperus sp.',               type:'woody',  stature:null, lifecycle:'P', season:'C', origin:'N',  invasive:true,  desirable:false },
+  { id:77, name:'Buttonbush',               scientific:'Symphoricarpus orbiculatus',  type:'woody',  stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:78, name:'Chittamwood',              scientific:'Bumelia lanuginosa',          type:'woody',  stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:79, name:'Eastern Cottonwood',       scientific:'Populus deltoides',           type:'woody',  stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:80, name:'Elm',                      scientific:'Ulmus sp.',                   type:'woody',  stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:81, name:'Fragrant Sumac',           scientific:'Rhus aromatica',              type:'woody',  stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:82, name:'Greenbriar',               scientific:'Smilax bona-nox',             type:'woody',  stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:83, name:'Hackberry',                scientific:'Celtis sp.',                  type:'woody',  stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:84, name:'Sumac',                    scientific:'Rhus sp.',                    type:'woody',  stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:85, name:'Live Oak',                 scientific:'Quercus virginiana',          type:'woody',  stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:86, name:'Mesquite',                 scientific:'Prosopis glandulosa',         type:'woody',  stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:true,  desirable:false },
+  { id:87, name:'Post Oak',                 scientific:'Quercus stellata',            type:'woody',  stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:88, name:'Plum',                     scientific:'Prunus sp.',                  type:'woody',  stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
+  { id:89, name:'Redbud',                   scientific:'Cercis canadensis',           type:'woody',  stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:true  },
+  { id:90, name:'Soapberry',                scientific:'Sapindus drummondii',         type:'woody',  stature:null, lifecycle:'P', season:'W', origin:'N',  invasive:false, desirable:false },
 ];
 
 // ============================================================
@@ -153,52 +151,42 @@ function getCategories(plant) {
     {
       key: 'lifecycle',
       label: 'Lifecycle',
-      options: [{ v: 'Annual', l: 'Annual' }, { v: 'Perennial', l: 'Perennial' }]
+      options: [{ v: 'A', l: 'Annual' }, { v: 'P', l: 'Perennial' }]
     },
     {
       key: 'season',
       label: 'Season',
-      options: [{ v: 'Warm', l: 'Warm' }, { v: 'Cool', l: 'Cool' }]
+      options: [{ v: 'W', l: 'Warm' }, { v: 'C', l: 'Cool' }]
     },
     {
-      key: 'origin_native_status',
+      key: 'origin',
       label: 'Origin',
-      options: [{ v: 'Native', l: 'Native' }, { v: 'Introduced', l: 'Introduced' }]
+      options: [{ v: 'N', l: 'Native' }, { v: 'In', l: 'Introduced' }]
     },
     {
-      key: 'origin_invasive_status',
+      key: 'invasive',
       label: 'Invasive',
-      options: [{ v: 'Invasive', l: 'Invasive' }, { v: 'Non-Invasive', l: 'Non-Invasive' }]
+      options: [{ v: 'true', l: 'Invasive' }, { v: 'false', l: 'Non-Invasive' }]
     },
     {
-      key: 'bobwhite_quail_food',
-      label: 'Quail Food',
-      options: [{ v: 'Desirable', l: 'Desirable' }, { v: 'Undesirable', l: 'Undesirable' }]
-    },
-    {
-      key: 'bobwhite_quail_cover',
-      label: 'Quail Cover',
-      options: [{ v: 'Desirable', l: 'Desirable' }, { v: 'Undesirable', l: 'Undesirable' }]
-    },
-    {
-      key: 'cattle_food',
-      label: 'Cattle Food',
-      options: [{ v: 'Desirable', l: 'Desirable' }, { v: 'Undesirable', l: 'Undesirable' }]
+      key: 'desirable',
+      label: 'Desirability',
+      options: [{ v: 'true', l: 'Desirable' }, { v: 'false', l: 'Undesirable' }]
     },
   ];
-  if (plant.stature !== null) {
-    cats.unshift({
+  if (plant.type === 'grass') {
+    cats.push({
       key: 'stature',
       label: 'Stature',
-      options: [{ v: 'Short', l: 'Short' }, { v: 'Mid', l: 'Mid' }, { v: 'Tall', l: 'Tall' }]
+      options: [{ v: 'S', l: 'Short' }, { v: 'M', l: 'Mid' }, { v: 'T', l: 'Tall' }]
     });
   }
   return cats;
 }
 
-// Returns the plant's correct answer as a string (to match option values)
+// Returns the plant's correct answer as a string (to match button data-value)
 function getCorrectValue(plant, key) {
-  if (key === 'origin_invasive_status') return plant[key] || 'Non-Invasive';
+  if (key === 'invasive' || key === 'desirable') return String(plant[key]);
   return plant[key];
 }
 
@@ -221,13 +209,13 @@ function parseSettingValue(setting, raw) {
 function renderStart() {
   const available = QUIZ_CONFIG.filter === 'all'
     ? PLANTS.length
-    : PLANTS.filter(p => p.category === QUIZ_CONFIG.filter).length;
+    : PLANTS.filter(p => p.type === QUIZ_CONFIG.filter).length;
 
   return `
     <div class="start-screen">
       <header class="start-header">
         <div class="start-title">Range Quiz</div>
-        <div class="start-subtitle">Range Plant Contest Prep</div>
+        <div class="start-subtitle">Texas — Range Plant Contest Prep</div>
       </header>
 
       <div class="settings-card">
@@ -243,10 +231,10 @@ function renderStart() {
           <div class="settings-label">Plant Type</div>
           <div class="settings-group">
             <button class="setting-btn${selIf('filter', 'all')}"    data-setting="filter" data-value="all">All</button>
-            <button class="setting-btn${selIf('filter', 'Grass')}"  data-setting="filter" data-value="Grass">Grass</button>
-            <button class="setting-btn${selIf('filter', 'Forb')}"   data-setting="filter" data-value="Forb">Forb</button>
-            <button class="setting-btn${selIf('filter', 'Legume')}" data-setting="filter" data-value="Legume">Legume</button>
-            <button class="setting-btn${selIf('filter', 'Woody')}"  data-setting="filter" data-value="Woody">Woody</button>
+            <button class="setting-btn${selIf('filter', 'grass')}"  data-setting="filter" data-value="grass">Grass</button>
+            <button class="setting-btn${selIf('filter', 'forb')}"   data-setting="filter" data-value="forb">Forb</button>
+            <button class="setting-btn${selIf('filter', 'legume')}" data-setting="filter" data-value="legume">Legume</button>
+            <button class="setting-btn${selIf('filter', 'woody')}"  data-setting="filter" data-value="woody">Woody</button>
           </div>
         </div>
 
@@ -294,7 +282,7 @@ function startScreen() {
       if (setting === 'filter') {
         const available = QUIZ_CONFIG.filter === 'all'
           ? PLANTS.length
-          : PLANTS.filter(p => p.category === QUIZ_CONFIG.filter).length;
+          : PLANTS.filter(p => p.type === QUIZ_CONFIG.filter).length;
         document.querySelector('.available-count').textContent =
           `${available} plant${available !== 1 ? 's' : ''} available`;
       }
@@ -542,7 +530,7 @@ function nextPlant() {
 
 function initQuiz() {
   let pool = [...PLANTS];
-  if (QUIZ_CONFIG.filter !== 'all') pool = pool.filter(p => p.category === QUIZ_CONFIG.filter);
+  if (QUIZ_CONFIG.filter !== 'all') pool = pool.filter(p => p.type === QUIZ_CONFIG.filter);
   if (QUIZ_CONFIG.randomize) shuffle(pool);
   if (QUIZ_CONFIG.count !== null) pool = pool.slice(0, QUIZ_CONFIG.count);
   state = {

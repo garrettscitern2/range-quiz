@@ -71,7 +71,8 @@ function shell(subtitle, bodyHtml) {
             <div class="dash-subtitle">${subtitle}</div>
           </div>
           <div class="dash-header-actions">
-            <a href="/index.html" class="dash-header-link">Take a Quiz</a>
+            <a href="/index.html" class="dash-header-link">Texas Quiz</a>
+            <a href="/national/index.html" class="dash-header-link">National Quiz</a>
             <button id="dash-signout" class="dash-header-link dash-signout-btn">Sign Out</button>
           </div>
         </div>
