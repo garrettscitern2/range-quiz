@@ -74,6 +74,12 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
 
 ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 
+-- One subscription row per user (enforces upsert safety)
+ALTER TABLE public.subscriptions
+  DROP CONSTRAINT IF EXISTS subscriptions_owner_id_key;
+ALTER TABLE public.subscriptions
+  ADD CONSTRAINT subscriptions_owner_id_key UNIQUE (owner_id);
+
 DROP POLICY IF EXISTS "subscriptions: owner select" ON public.subscriptions;
 DROP POLICY IF EXISTS "subscriptions: admin select" ON public.subscriptions;
 

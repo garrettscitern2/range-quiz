@@ -66,25 +66,40 @@ async function handler(req, res) {
 
     const seatsPurchased = tier === 'bulk' ? 6 : 1;
     const expiresAt      = calcExpiresAt();
+    const payload        = {
+      tier,
+      seats_purchased:    seatsPurchased,
+      seats_used:         0,
+      is_active:          true,
+      expires_at:         expiresAt,
+      stripe_customer_id: session.customer ?? null,
+    };
 
-    // Upsert so repurchases renew the existing row
-    const { error } = await supabaseAdmin
+    // Check whether a subscription row already exists for this user
+    const { data: existing } = await supabaseAdmin
       .from('subscriptions')
-      .upsert(
-        {
-          owner_id:           userId,
-          tier,
-          seats_purchased:    seatsPurchased,
-          seats_used:         0,
-          is_active:          true,
-          expires_at:         expiresAt,
-          stripe_customer_id: session.customer ?? null,
-        },
-        { onConflict: 'owner_id' }
-      );
+      .select('id')
+      .eq('owner_id', userId)
+      .maybeSingle();
 
-    if (error) {
-      console.error('Supabase upsert error:', error);
+    let dbError;
+    if (existing) {
+      // Renew existing row
+      const { error } = await supabaseAdmin
+        .from('subscriptions')
+        .update(payload)
+        .eq('id', existing.id);
+      dbError = error;
+    } else {
+      // First-time purchase — insert a new row
+      const { error } = await supabaseAdmin
+        .from('subscriptions')
+        .insert({ owner_id: userId, ...payload });
+      dbError = error;
+    }
+
+    if (dbError) {
+      console.error('Supabase write error:', dbError);
       return res.status(500).end();
     }
 
