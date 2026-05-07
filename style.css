@@ -569,6 +569,24 @@ html, body {
   border-bottom: 1px solid #fca5a5;
 }
 
+.auth-notice-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.auth-spinner {
+  font-size: 24px;
+  margin-top: 10px;
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 .auth-card {
   flex: 1;
   background: var(--card);

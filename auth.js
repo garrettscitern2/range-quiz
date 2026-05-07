@@ -9,13 +9,24 @@ const noSubReason = params.get('reason') === 'no_subscription';
 document.addEventListener('DOMContentLoaded', () => {
   // ── Wire up UI immediately (don't block on async session check) ──
 
-  if (noSubReason) {
+  if (noSubReason || params.get('payment') === 'success') {
     document.getElementById('no-sub-notice').style.display = 'block';
     sessionStorage.removeItem('authRedirect'); // prevent stale redirect loops
+
     document.getElementById('notice-signout-btn').addEventListener('click', async () => {
       await supabase.auth.signOut();
       window.location.href = '/auth.html';
     });
+
+    if (params.get('payment') === 'success') {
+      // Hide default notice, show activation-polling state
+      document.getElementById('sub-notice-default').style.display = 'none';
+      document.getElementById('sub-notice-success').style.display  = 'block';
+      pollForActivation();
+    } else {
+      // Show the correct purchase button based on user role
+      loadPurchaseButton();
+    }
   }
 
   if (inviteToken) {
@@ -66,6 +77,89 @@ async function redirectAfterLogin() {
   const dest = sessionStorage.getItem('authRedirect') || '/dashboard.html';
   sessionStorage.removeItem('authRedirect');
   window.location.href = dest;
+}
+
+// ── Purchase button (shown on ?reason=no_subscription) ───────
+
+async function loadPurchaseButton() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
+
+    const btn = document.getElementById('purchase-btn');
+    const msg = document.getElementById('sub-notice-msg');
+    if (!btn || !profile) return;
+
+    if (profile.role === 'teacher') {
+      btn.textContent  = 'Purchase Teacher License — $100/yr (6 seats)';
+      btn.style.display = 'block';
+      btn.addEventListener('click', () => startCheckout(session.user.id, 'bulk'));
+    } else {
+      if (msg) msg.textContent = 'Purchase a subscription or contact your teacher for an invite.';
+      btn.textContent  = 'Purchase Individual Access — $20/yr';
+      btn.style.display = 'block';
+      btn.addEventListener('click', () => startCheckout(session.user.id, 'individual'));
+    }
+  } catch (err) {
+    console.error('loadPurchaseButton error:', err);
+  }
+}
+
+async function startCheckout(userId, tier) {
+  const btn = document.getElementById('purchase-btn');
+  btn.disabled    = true;
+  btn.textContent = 'Redirecting to checkout…';
+  try {
+    const res  = await fetch('/api/create-checkout-session', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ userId, tier }),
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      btn.disabled    = false;
+      btn.textContent = tier === 'bulk'
+        ? 'Purchase Teacher License — $100/yr (6 seats)'
+        : 'Purchase Individual Access — $20/yr';
+      alert('Could not start checkout. Please try again.');
+    }
+  } catch (err) {
+    console.error('startCheckout error:', err);
+    btn.disabled = false;
+  }
+}
+
+// ── Activation polling (shown on ?payment=success) ───────────
+
+async function pollForActivation() {
+  const { data: { session } } = await supabase.auth.getSession()
+    .catch(() => ({ data: {} }));
+  if (!session) return;
+
+  let attempts = 0;
+  const max = 10; // poll up to ~20 seconds (every 2s)
+  const interval = setInterval(async () => {
+    attempts++;
+    const active = await checkSubscriptionAccess(session.user.id).catch(() => false);
+    if (active) {
+      clearInterval(interval);
+      window.location.href = '/dashboard.html';
+      return;
+    }
+    if (attempts >= max) {
+      clearInterval(interval);
+      document.getElementById('payment-spinner').style.display  = 'none';
+      document.getElementById('payment-fallback').style.display = 'block';
+    }
+  }, 2000);
 }
 
 function switchForm(id) {

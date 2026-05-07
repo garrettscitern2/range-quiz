@@ -16,13 +16,30 @@
       <div class="auth-subtitle">Range Plant Contest Prep</div>
     </header>
 
-    <!-- Shown when ?reason=no_subscription -->
+    <!-- Shown when ?reason=no_subscription or ?payment=success -->
     <div class="auth-notice" id="no-sub-notice" style="display:none">
-      <strong>Access required.</strong> Your account is pending activation.
-      Contact your teacher or purchase a subscription.
-      <div style="margin-top:10px">
-        <button id="notice-signout-btn" class="auth-signout-btn" style="font-size:13px">Sign out</button>
+
+      <!-- Default: show purchase button -->
+      <div id="sub-notice-default">
+        <strong>Access required.</strong>
+        <span id="sub-notice-msg">Purchase a subscription to get started.</span>
+        <div class="auth-notice-actions">
+          <button id="purchase-btn" class="action-btn" style="margin-top:12px;display:none">Loading…</button>
+          <button id="notice-signout-btn" class="auth-signout-btn" style="font-size:13px;margin-top:8px">Sign out</button>
+        </div>
       </div>
+
+      <!-- Shown after returning from Stripe with ?payment=success -->
+      <div id="sub-notice-success" style="display:none">
+        <strong>Payment received!</strong> Activating your account…
+        <div class="auth-notice-actions">
+          <div id="payment-spinner" class="auth-spinner">&#9203;</div>
+          <div id="payment-fallback" style="display:none;margin-top:8px;font-size:13px">
+            Taking a moment — <a href="/auth.html">try signing in again</a>.
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <div class="auth-card">
