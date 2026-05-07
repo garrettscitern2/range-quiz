@@ -5,7 +5,7 @@
 const QUIZ_SET = 'texas'; // used when saving scores to Supabase (Phase 3)
 
 const QUIZ_CONFIG = {
-  mode:      'immediate', // 'immediate' | 'end-review' (future)
+  mode:      'standard',  // 'standard' | 'practice'
   filter:    'all',       // 'all' | 'grass' | 'forb' | 'legume' | 'woody'
   count:     null,        // null = all in filtered set; number = random subset
   randomize: true         // true = shuffle; false = in-order by ID
@@ -206,6 +206,44 @@ function parseSettingValue(setting, raw) {
   return raw;
 }
 
+async function getPracticePlants() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return null;
+
+    const { data: attempts } = await supabase
+      .from('plant_attempts')
+      .select('plant_id, was_fully_correct')
+      .eq('user_id', session.user.id)
+      .eq('quiz_set', QUIZ_SET);
+
+    if (!attempts || attempts.length === 0) return null;
+
+    // Tally misses per plant
+    const map = {};
+    attempts.forEach(a => {
+      if (!map[a.plant_id]) map[a.plant_id] = { total: 0, missed: 0 };
+      map[a.plant_id].total++;
+      if (!a.was_fully_correct) map[a.plant_id].missed++;
+    });
+
+    // Keep only plants with ≥1 miss, sorted most-missed first
+    const missedIds = Object.entries(map)
+      .filter(([, v]) => v.missed > 0)
+      .sort((a, b) => b[1].missed - a[1].missed)
+      .map(([id]) => parseInt(id, 10));
+
+    if (missedIds.length === 0) return null;
+
+    return missedIds
+      .map(id => PLANTS.find(p => p.id === id))
+      .filter(Boolean);
+  } catch (err) {
+    console.error('getPracticePlants failed:', err);
+    return null;
+  }
+}
+
 function renderStart() {
   const available = QUIZ_CONFIG.filter === 'all'
     ? PLANTS.length
@@ -219,6 +257,14 @@ function renderStart() {
       </header>
 
       <div class="settings-card">
+        <div class="settings-section">
+          <div class="settings-label">Mode</div>
+          <div class="settings-group">
+            <button class="setting-btn${selIf('mode', 'standard')}"  data-setting="mode" data-value="standard">Standard</button>
+            <button class="setting-btn${selIf('mode', 'practice')}"  data-setting="mode" data-value="practice">Practice</button>
+          </div>
+        </div>
+
         <div class="settings-section">
           <div class="settings-label">Order</div>
           <div class="settings-group">
@@ -319,6 +365,7 @@ function renderQuiz() {
       <header class="quiz-header">
         <div class="header-top">
           <span class="quiz-title">Range Quiz</span>
+          ${QUIZ_CONFIG.mode === 'practice' ? '<span class="practice-badge">Practice</span>' : ''}
           <span class="progress-count">${state.index + 1}&thinsp;/&thinsp;${total}</span>
         </div>
         <div class="progress-track">
@@ -528,7 +575,49 @@ function nextPlant() {
 // INIT
 // ============================================================
 
-function initQuiz() {
+async function initQuiz() {
+  const app = document.getElementById('app');
+
+  if (QUIZ_CONFIG.mode === 'practice') {
+    app.innerHTML = '<div class="auth-loading">Loading practice list…</div>';
+    const practicePlants = await getPracticePlants();
+
+    if (!practicePlants) {
+      app.innerHTML = `
+        <div class="start-screen">
+          <header class="start-header">
+            <div class="start-title">Range Quiz</div>
+            <div class="start-subtitle">Practice Mode</div>
+          </header>
+          <div class="settings-card">
+            <div class="dash-empty" style="text-align:center;padding:24px 0;">
+              No missed plants yet!<br>Complete a Standard quiz first to build your practice list.
+            </div>
+            <div class="action-area">
+              <button id="back-btn" class="action-btn">Back to Settings</button>
+            </div>
+          </div>
+        </div>`;
+      document.getElementById('back-btn').addEventListener('click', () => {
+        app.innerHTML = renderStart();
+        startScreen();
+      });
+      return;
+    }
+
+    state = {
+      queue:     practicePlants,
+      index:     0,
+      submitted: false,
+      answers:   {},
+      score:     { plants: 0, chars: 0, charsTotal: 0 },
+      attempts:  []
+    };
+    render();
+    return;
+  }
+
+  // Standard mode
   let pool = [...PLANTS];
   if (QUIZ_CONFIG.filter !== 'all') pool = pool.filter(p => p.type === QUIZ_CONFIG.filter);
   if (QUIZ_CONFIG.randomize) shuffle(pool);
