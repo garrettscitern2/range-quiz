@@ -265,7 +265,14 @@ async function renderTeacherDashboard(userId, profile) {
         <div class="dash-stat-lbl">Expires</div>
       </div>
     </div>
-  ` : '<div class="dash-empty">No active subscription found.</div>';
+  ` : `
+    <div class="dash-empty">
+      No active subscription.
+      <div style="margin-top:14px">
+        <button id="dash-purchase-btn" class="action-btn">Purchase Teacher License — $100/yr (6 seats)</button>
+      </div>
+    </div>
+  `;
 
   // ── Students table ──
   const studentRows = studentSummaries.length
@@ -346,6 +353,33 @@ async function renderTeacherDashboard(userId, profile) {
   `);
 
   signOutListener();
+
+  if (!sub) {
+    document.getElementById('dash-purchase-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('dash-purchase-btn');
+      btn.disabled    = true;
+      btn.textContent = 'Redirecting to checkout…';
+      try {
+        const res  = await fetch('/api/create-checkout-session', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ userId, tier: 'bulk' }),
+        });
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          btn.disabled    = false;
+          btn.textContent = 'Purchase Teacher License — $100/yr (6 seats)';
+          alert('Could not start checkout. Please try again.');
+        }
+      } catch (err) {
+        console.error('Purchase error:', err);
+        btn.disabled    = false;
+        btn.textContent = 'Purchase Teacher License — $100/yr (6 seats)';
+      }
+    });
+  }
 
   if (canInvite) {
     document.getElementById('gen-invite-btn').addEventListener('click', () => generateInvite(userId, sub.id));
