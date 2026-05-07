@@ -1,6 +1,7 @@
 // ============================================================
 // POST /api/create-checkout-session
 // Body: { userId: string, tier: 'individual' | 'bulk' }
+// Tiers: individual = $20/yr (1 seat), bulk = $100/yr (6 seats)
 // Returns: { url: string }  — Stripe Checkout URL to redirect to
 // ============================================================
 
